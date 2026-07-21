@@ -1,0 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Sora:wght@500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --color-deep: #ffffff;
+  --color-midnight: #fafafa;
+  --color-quantum: #8B1520;
+  --color-quantum-light: #A8222F;
+  --color-quantum-dark: #5C0A12;
+  --color-silver: #64748b;
+  --color-holo: #f5e6e8;
+  --color-navy: #1A0A0C;
+  --color-navy-soft: #3D0C12;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-slate-800 font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply tracking-tight text-slate-900;
+  }
+}
+
+/* Backgrounds — premium, espaçoso, vermelho escuro */
+.bg-mesh {
+  background:
+    radial-gradient(ellipse 90% 55% at 70% -10%, rgba(139, 21, 32, 0.08), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 0% 60%, rgba(26, 10, 12, 0.04), transparent 50%),
+    linear-gradient(180deg, #ffffff 0%, #fafafa 45%, #ffffff 100%);
+}
+
+.bg-section-dark {
+  background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+}
+
+.bg-navy {
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 0%, rgba(168, 34, 47, 0.25), transparent 55%),
+    linear-gradient(160deg, #1A0A0C 0%, #3D0C12 55%, #5C0A12 100%);
+}
+
+/* Buttons */
+.btn-cta {
+  @apply relative inline-flex items-center justify-center gap-2 font-semibold tracking-wide text-sm md:text-base px-8 py-4 rounded-xl text-white overflow-hidden transition-transform active:scale-[0.98];
+  background: linear-gradient(135deg, #5C0A12 0%, #8B1520 50%, #A8222F 100%);
+  box-shadow: 0 8px 28px rgba(92, 10, 18, 0.25), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.btn-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.14) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: shimmer 3.5s infinite;
+}
+
+.btn-cta-pulse {
+  animation: cta-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 8px 28px rgba(92, 10, 18, 0.25), 0 2px 8px rgba(0, 0, 0, 0.06); }
+  50% { box-shadow: 0 10px 36px rgba(139, 21, 32, 0.35), 0 4px 12px rgba(0, 0, 0, 0.08); }
+}
+
+.btn-secondary-cta {
+  @apply inline-flex items-center justify-center gap-2 font-semibold tracking-wide text-sm px-6 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all;
+}
+
+/* Cards */
+.card-premium {
+  @apply rounded-2xl border border-slate-200/80 backdrop-blur-sm transition-all duration-300 bg-white;
+  box-shadow: 0 1px 2px rgba(26, 10, 12, 0.04), 0 8px 24px rgba(26, 10, 12, 0.04);
+}
+
+.card-premium:hover {
+  border-color: rgba(139, 21, 32, 0.25);
+  box-shadow: 0 4px 28px rgba(139, 21, 32, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #1A0A0C 0%, #8B1520 55%, #A8222F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-silver {
+  background: linear-gradient(135deg, #334155 0%, #64748b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Nav */
+.glass-nav {
+  @apply bg-white/90 backdrop-blur-xl border-b border-slate-200/80;
+}
+
+/* Soft ambient orbs */
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 21, 32, 0.1) 0%, transparent 70%);
+  animation: float-particle 14s ease-in-out infinite;
+  filter: blur(8px);
+}
+
+@keyframes float-particle {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.55; }
+  50% { transform: translateY(-24px) translateX(12px); opacity: 0.9; }
+}
+
+.product-float {
+  animation: product-float 6s ease-in-out infinite;
+  filter: drop-shadow(0 28px 48px rgba(26, 10, 12, 0.18));
+}
+
+@keyframes product-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+.sticky-cta {
+  @apply fixed bottom-0 left-0 right-0 z-50 p-3 md:hidden;
+  background: linear-gradient(180deg, transparent 0%, #ffffff 30%);
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.checkout-theme {
+  @apply bg-slate-50 text-slate-900;
+}
+
+.btn-primary {
+  @apply relative inline-flex items-center justify-center gap-2 w-full py-4 rounded-xl font-semibold tracking-wide text-white transition-all disabled:opacity-60;
+  background: linear-gradient(135deg, #5C0A12 0%, #8B1520 100%);
+  box-shadow: 0 4px 20px rgba(92, 10, 18, 0.28);
+}
+
+.checkout-theme .btn-checkout {
+  @apply relative inline-flex items-center justify-center gap-2 w-full py-4 rounded-xl font-semibold tracking-wide text-white transition-all disabled:opacity-60;
+  background: linear-gradient(135deg, #5C0A12 0%, #8B1520 100%);
+  box-shadow: 0 4px 20px rgba(92, 10, 18, 0.28);
+}
+
+.checkout-theme .accent-focus:focus {
+  @apply border-[#8B1520] outline-none;
+}
+
+.faq-answer {
+  animation: faq-open 0.3s ease-out;
+}
+
+@keyframes faq-open {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+::selection {
+  background: rgba(139, 21, 32, 0.2);
+  color: #0f172a;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Comparison table */
+.compare-table th,
+.compare-table td {
+  @apply px-4 md:px-6 py-4 text-sm;
+}
+
+.compare-check {
+  @apply text-quantum font-semibold;
+}
+
+.compare-x {
+  @apply text-slate-400;
+}

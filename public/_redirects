@@ -1,0 +1,3 @@
+/api/pix/charge    /.netlify/functions/pix-charge    200
+/api/order/*       /.netlify/functions/order/:splat    200
+/*                 /index.html                         200

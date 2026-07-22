@@ -34,7 +34,7 @@ interface CheckoutData {
 interface PixChargeResult {
   orderId: string;
   pixCode: string;
-  qrCodeUrl: string;
+  qrCodeUrl?: string;
 }
 
 interface OrderBump {
@@ -116,7 +116,13 @@ const formatDeliveryDate = (date: Date) =>
 const getDeliveryEstimate = (method: 'free' | 'sedex') => {
   const { min, max } = SHIPPING_DELIVERY_DAYS[method];
   const today = new Date();
-  return `Previsão: ${formatDeliveryDate(addBusinessDays(today, min))} — ${formatDeliveryDate(addBusinessDays(today, max))}`;
+  const label = method === 'free' ? 'Frete Grátis' : 'SEDEX';
+  return `Previsão (${label}): ${formatDeliveryDate(addBusinessDays(today, min))} — ${formatDeliveryDate(addBusinessDays(today, max))}`;
+};
+
+const previewPixCode = (code: string) => {
+  if (code.length <= 72) return code;
+  return `${code.slice(0, 40)}…${code.slice(-24)}`;
 };
 
 const getShippingDaysLabel = (method: 'free' | 'sedex') => {
@@ -483,11 +489,7 @@ const Checkout = ({ offer, onBack }: { offer: Offer; onBack: () => void }) => {
       qrCodeUrl = `data:image/png;base64,${qrCodeUrl}`;
     }
 
-    if (!qrCodeUrl && pixCode) {
-      qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixCode)}`;
-    }
-
-    if (!pixCode || !qrCodeUrl) return null;
+    if (!pixCode) return null;
 
     return {
       orderId: data.order_id ?? data.orderId ?? '',
@@ -806,37 +808,53 @@ const Checkout = ({ offer, onBack }: { offer: Offer; onBack: () => void }) => {
             compact
           />
 
-          <div className="mt-6 bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full mb-4">
-              <PixIcon className="h-7 w-7" />
-            </div>
+          <div className="mt-6 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full mb-4">
+                <PixIcon className="h-7 w-7" />
+              </div>
 
-            <h2 className="font-display text-xl font-bold text-slate-900 mb-1">Pague com PIX</h2>
-            <p className="text-sm text-slate-500 mb-5">
-              Escaneie o QR Code ou copie o código para confirmar seu pedido.
-            </p>
-
-            <div className="bg-slate-50 rounded-xl p-5 mb-5">
-              <OptimizedImage
-                src={pixCharge?.qrCodeUrl ?? 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=erro'}
-                alt="QR Code PIX"
-                className="w-44 h-44 mx-auto mb-3"
-                referrerPolicy="no-referrer"
-                priority
-              />
-              <p className={`text-xs font-semibold ${isPaymentApproved ? 'text-emerald-600' : 'text-slate-500'}`}>
-                {isPaymentApproved ? 'Pagamento confirmado!' : 'Aguardando pagamento...'}
+              <h2 className="font-display text-xl font-bold text-slate-900 mb-1">Pague com PIX</h2>
+              <p className="text-sm text-slate-500 mb-5">
+                Copie o código e cole no app do seu banco para confirmar o pedido.
               </p>
-              {pixCharge?.orderId && (
-                <p className="text-[10px] text-slate-400 mt-1">Pedido #{pixCharge.orderId.slice(0, 8)}</p>
-              )}
+
+              <div className="bg-slate-50 rounded-xl px-4 py-3 mb-5">
+                <p className={`text-xs font-semibold ${isPaymentApproved ? 'text-emerald-600' : 'text-slate-500'}`}>
+                  {isPaymentApproved ? 'Pagamento confirmado!' : 'Aguardando pagamento...'}
+                </p>
+                {pixCharge?.orderId && (
+                  <p className="text-[10px] text-slate-400 mt-1">Pedido #{pixCharge.orderId.slice(0, 8)}</p>
+                )}
+              </div>
             </div>
 
             {isPaymentApproved && (
-              <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-700">
+              <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-700 text-center">
                 Redirecionando...
               </div>
             )}
+
+            <div className="mb-5 text-left rounded-xl bg-quantum/5 border border-quantum/15 p-4">
+              <p className="text-xs font-semibold text-slate-800 mb-3 flex items-center gap-1.5">
+                <Zap size={13} className="text-quantum" /> Como pagar
+              </p>
+              <ol className="text-xs text-slate-600 space-y-2 list-decimal ml-4">
+                <li>Abra o aplicativo do seu banco</li>
+                <li>Escolha a opção <span className="font-semibold text-slate-800">PIX Copia e Cola</span></li>
+                <li>Cole o código PIX copiado nesta página</li>
+                <li>Confirme o valor e finalize o pagamento</li>
+              </ol>
+            </div>
+
+            <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
+                Código PIX
+              </p>
+              <p className="font-mono text-[11px] leading-relaxed text-slate-700 break-all select-all">
+                {pixCharge?.pixCode ? previewPixCode(pixCharge.pixCode) : '—'}
+              </p>
+            </div>
 
             <button
               type="button"
@@ -849,21 +867,9 @@ const Checkout = ({ offer, onBack }: { offer: Offer; onBack: () => void }) => {
               {isPixCopied ? 'Código copiado!' : 'Copiar código PIX'}
             </button>
 
-            <div className="mt-5 text-left rounded-xl bg-quantum/5 border border-quantum/15 p-4">
-              <p className="text-xs font-semibold text-slate-800 mb-2 flex items-center gap-1.5">
-                <Zap size={13} className="text-quantum" /> Como pagar
-              </p>
-              <ol className="text-xs text-slate-600 space-y-1 list-decimal ml-4">
-                <li>Abra o app do seu banco</li>
-                <li>Escolha PIX → Copia e Cola ou QR Code</li>
-                <li>Cole o código ou escaneie a imagem</li>
-                <li>Confirme o pagamento</li>
-              </ol>
-            </div>
+            {paymentError && <p className="mt-4 text-xs text-red-600 font-semibold text-center">{paymentError}</p>}
 
-            {paymentError && <p className="mt-4 text-xs text-red-600 font-semibold">{paymentError}</p>}
-
-            <p className="mt-5 text-[11px] text-slate-400">
+            <p className="mt-5 text-[11px] text-slate-400 text-center">
               O código de rastreio será enviado para {formData.email || 'seu e-mail'} após a confirmação.
             </p>
           </div>
@@ -1024,7 +1030,9 @@ const Checkout = ({ offer, onBack }: { offer: Offer; onBack: () => void }) => {
                       </button>
                     ))}
                   </div>
-                  <p className="mt-3 text-xs text-quantum font-medium">{getDeliveryEstimate(shippingMethod)}</p>
+                  <p key={shippingMethod} className="mt-3 text-xs text-quantum font-medium">
+                    {getDeliveryEstimate(shippingMethod)}
+                  </p>
                 </section>
               )}
 
